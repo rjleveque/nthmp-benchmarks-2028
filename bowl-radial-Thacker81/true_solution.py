@@ -2,10 +2,10 @@
 The true solution to the radially symmetric parabolic bowl problem
 from Thacker 1981.
 
-The parameters defining the problem are imported from here into
-maketopo.py
-setrun.py
-setplot.py
+Thacker, W. C. (1981). Some exact solutions to the nonlinear shallow-water wave equations. Journal of Fluid Mechanics, 107, 499–508. 10.1017/s0022112081001882
+
+The parameters defining the problem are imported from here into other
+scripts used by the GeoClaw code.
 
 """
 
@@ -53,10 +53,12 @@ def qtrue1d(r,t):
     return h,u,eta
     
     
-def shoreline(t, r_shore0=200):
+def shoreline(t, r_shore0=L):
     """
     Compute the exact shoreline location at time t.
-    r_shore0 is the initial guess to be used.
+
+    r_shore0 is the initial guess to be used. The original shoreline L
+    is generally fine as a default.
     """
 
     from scipy.optimize import fsolve
@@ -65,8 +67,8 @@ def shoreline(t, r_shore0=200):
     eta1d = lambda r: D0 * (sqrt(1-A**2)/denom - 1 \
                       - r**2/L**2 * ((1-A**2)/(1-A*cos(omega*t))**2 - 1))
     psi = lambda r: eta1d(r) - B1d(r)
-    r_shore = fsolve(psi, x0=r_shore0, xtol=1e-3)
-    return r_shore[0]
+    r_shore, = fsolve(psi, x0=r_shore0, xtol=1e-3)
+    return r_shore
     
 def plot_eta(t):
 
