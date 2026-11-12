@@ -47,7 +47,27 @@ def qtrue(x,y,t):
     h = eta - B
     return h,u,v,eta
 
+def qtrue1d(r,t):
+    B = Bfcn(r,0)
+    h,u,v,eta = qtrue(r,0,t)
+    return h,u,eta
+    
+    
+def shoreline(t, r_shore0=200):
+    """
+    Compute the exact shoreline location at time t.
+    r_shore0 is the initial guess to be used.
+    """
 
+    from scipy.optimize import fsolve
+    denom = 1 - A*cos(omega*t)
+    B1d = lambda r: Bfcn(r,0)
+    eta1d = lambda r: D0 * (sqrt(1-A**2)/denom - 1 \
+                      - r**2/L**2 * ((1-A**2)/(1-A*cos(omega*t))**2 - 1))
+    psi = lambda r: eta1d(r) - B1d(r)
+    r_shore = fsolve(psi, x0=r_shore0, xtol=1e-3)
+    return r_shore[0]
+    
 def plot_eta(t):
 
     x = linspace(-1.2*L, 1.2*L, 201)

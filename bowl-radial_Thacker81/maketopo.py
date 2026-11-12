@@ -13,8 +13,8 @@ def maketopo():
     """
     Output topography file for the entire domain
     """
-    nx = 200
-    ny = 200
+    nx = 480
+    ny = 480
     xlower = -240.0
     xupper = 240.0
     ylower = -240.0

@@ -8,9 +8,18 @@ function setplot is called to set the plot parameters.
 """
 
 from numpy import *
+import os
 
 from true_solution import D0, L, eta0, Tperiod
 from true_solution import omega, A, Bfcn, qtrue
+
+if 0:
+    q1d_dir = os.path.abspath('./1d_radial/_output_720')
+    if not os.path.exists(q1d_dir):
+        print(f"Directory {q1d_dir} not found")
+        q1d_dir = None 
+else:
+    q1d_dir = None
 
 #--------------------------
 def setplot(plotdata=None):
@@ -43,7 +52,6 @@ def setplot(plotdata=None):
 
     plotdata.beforeframe = set_drytol
 
-    qref_dir = None
 
     def addgauges(current_data):
         from clawpack.visclaw import gaugetools
@@ -138,13 +146,15 @@ def setplot(plotdata=None):
 
         t = current_data.t
         h_true, u_true, v_true, eta_true = qtrue(rout, zeros(rout.shape), t)
-        plot(rout, eta_true, 'k', label='analytic solution')
-        plot(-rout, eta_true, 'k')
+        plot(rout, eta_true, 'k--', label='analytic solution')
+        plot(-rout, eta_true, 'k--')
         B_true = Bfcn(rout, zeros(rout.shape))
         plot(rout, B_true,'g',label='topography')
         plot(-rout, B_true,'g')
-        c = ['b','c','r','m']
-        for k,alpha in enumerate([0,10,30,45]):
+        #c = ['b','c','r','m']
+        #for k,alpha in enumerate([0,10,30,45]):
+        c = ['b','c','m']
+        for k,alpha in enumerate([0,20,45]):
             xout = rout * cos(alpha*pi/180)
             yout = rout * sin(alpha*pi/180)
             h_out = gridtools.grid_output_2d(framesoln, 0, xout, yout,
@@ -164,6 +174,24 @@ def setplot(plotdata=None):
         xlim(-240,240)
         ylim(-2.5,2.5)
         grid(True)
+
+    if q1d_dir is not None:
+        # 1d radial solution:
+        plotitem = plotaxes.new_plotitem(plot_type='1d_plot')
+        plotitem.outdir = q1d_dir
+        plotitem.plot_var = -1
+        plotitem.plotstyle = '--'
+        plotitem.color = 'r'
+
+        # 1d radial solution reflected:
+        plotitem = plotaxes.new_plotitem(plot_type='1d_plot')
+        plotitem.outdir = q1d_dir
+        plotitem.plot_var = -1
+        plotitem.plotstyle = '--'
+        plotitem.color = 'r'
+        plotitem.MappedGrid = True
+        plotitem.mapc2p = lambda x: -x
+
 
     plotaxes.afteraxes = plot_xsec
     plotaxes.title = 'radial transects at angles alpha to x-axis,'
