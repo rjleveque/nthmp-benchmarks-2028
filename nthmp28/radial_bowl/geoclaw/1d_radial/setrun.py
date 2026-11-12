@@ -9,8 +9,12 @@ that will be read in by the Fortran code.
 import os, sys
 import numpy as np
 from clawpack.geoclaw.nonuniform_grid_tools import make_mapc2p
+try:
+    from nthmp28.radial_bowl import true_solution as TS
+except:
+    print('*** The git repository directory needs to be on your Python path')
+    raise
 
-from true_solution import D0, L, eta0, Tperiod 
 
 
 # Read in nonuniform computational cell edges
@@ -47,10 +51,9 @@ def setrun(claw_pkg='geoclaw'):
     #------------------------------------------------------------------
     # Sample setup to write one line to setprob.data ...
     probdata = rundata.new_UserData(name='probdata',fname='setprob.data')
-    probdata = rundata.new_UserData(name='probdata',fname='setprob.data')
-    probdata.add_param('D0', D0, 'topo depth at center of bowl')
-    probdata.add_param('L', L, 'radius of topo=0 contour')
-    probdata.add_param('eta0', eta0, 'initial eta at center')
+    probdata.add_param('D0', TS.D0, 'topo depth at center of bowl')
+    probdata.add_param('L', TS.L, 'radius of topo=0 contour')
+    probdata.add_param('eta0', TS.eta0, 'initial eta at center')
 
 
     #------------------------------------------------------------------
@@ -129,7 +132,7 @@ def setrun(claw_pkg='geoclaw'):
         # Output ntimes frames at equally spaced times up to tfinal:
         # Can specify num_output_times = 0 for no output
         clawdata.num_output_times = 120
-        clawdata.tfinal = 10*Tperiod
+        clawdata.tfinal = 10*TS.Tperiod
         clawdata.output_t0 = True  # output at initial (or restart) time?
 
     elif clawdata.output_style == 2:
@@ -229,8 +232,8 @@ def setrun(claw_pkg='geoclaw'):
     #   2 or 'periodic' => periodic (must specify this at both boundaries)
     #   3 or 'wall'     => solid wall for systems where q(2) is normal velocity
 
-    clawdata.bc_lower[0] = 'extrap'   # at xlower
-    #clawdata.bc_lower[0] = 'wall'   # at xlower
+    #clawdata.bc_lower[0] = 'extrap'   # at xlower
+    clawdata.bc_lower[0] = 'wall'   # at xlower
     clawdata.bc_upper[0] = 'extrap'   # at xupper
 
 

@@ -10,11 +10,15 @@ function setplot is called to set the plot parameters.
 from numpy import *
 import os
 
-from true_solution import D0, L, eta0, Tperiod
-from true_solution import omega, A, Bfcn, qtrue
+try:
+    from nthmp28.radial_bowl import true_solution as TS
+except:
+    print('*** The git repository directory needs to be on your Python path')
+    raise
+
 
 if 0:
-    q1d_dir = os.path.abspath('./1d_radial/_output_720')
+    q1d_dir = os.path.abspath('./1d_radial/_output')
     if not os.path.exists(q1d_dir):
         print(f"Directory {q1d_dir} not found")
         q1d_dir = None 
@@ -98,8 +102,8 @@ def setplot(plotdata=None):
     def plot_shore(current_data):
         from pylab import linspace, where, cos, sin, plot, legend
         t = current_data.t
-        rout = linspace(0, 2*L, 1000)
-        h_true, u_true, v_true, eta_true = qtrue(rout, zeros(rout.shape), t)
+        rout = linspace(0, 2*TS.L, 1000)
+        h_true, u_true, v_true, eta_true = TS.qtrue(rout, zeros(rout.shape), t)
         jshore = where(h_true > 0)[0].max()
         rshore = rout[jshore]
         print(f'rshore = {rshore:.3f}')
@@ -142,13 +146,13 @@ def setplot(plotdata=None):
         frameno = current_data.frameno
         framesoln = Solution(frameno, path=pd.outdir, file_format=pd.format)
         method = 'linear'
-        rout = linspace(0, 2*L, 1000)
+        rout = linspace(0, 2*TS.L, 1000)
 
         t = current_data.t
-        h_true, u_true, v_true, eta_true = qtrue(rout, zeros(rout.shape), t)
+        h_true, u_true, v_true, eta_true = TS.qtrue(rout, zeros(rout.shape), t)
         plot(rout, eta_true, 'k--', label='analytic solution')
         plot(-rout, eta_true, 'k--')
-        B_true = Bfcn(rout, zeros(rout.shape))
+        B_true = TS.Bfcn(rout, zeros(rout.shape))
         plot(rout, B_true,'g',label='topography')
         plot(-rout, B_true,'g')
         #c = ['b','c','r','m']
@@ -217,7 +221,8 @@ def setplot(plotdata=None):
         x = linspace(-2,2,201)
         y = 0.
         B = h0*(x**2 + y**2)/a**2 - h0
-        eta1 = sigma*h0/a**2 * (2.*x*cos(omega*t) + 2.*y*sin(omega*t) -sigma)
+        eta1 = sigma*h0/a**2 * (2.*x*cos(TS.omega*t) \
+               + 2.*y*sin(TS.omega*t) -sigma)
         etatrue = where(eta1>B, eta1, nan)
         plot(x, etatrue, 'r', label="true solution", linewidth=2)
         plot(x, B, 'g', label="bathymetry")

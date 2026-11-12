@@ -6,7 +6,11 @@ Module to create topo and qinit data files for this example.
 from numpy import *
 from clawpack.geoclaw.topotools import Topography
 
-from true_solution import D0, L
+try:
+    from nthmp28.radial_bowl import true_solution as TS
+except:
+    print('*** The git repository directory needs to be on your Python path')
+    raise
 
 
 def maketopo():
@@ -33,7 +37,7 @@ def topo(x,y):
     """
     Parabolic bowl
     """
-    z = -D0 * (1 - (x**2 + y**2)/L**2)
+    z = -TS.D0 * (1 - (x**2 + y**2)/TS.L**2)
     return z
 
 
