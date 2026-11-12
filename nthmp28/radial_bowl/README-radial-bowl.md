@@ -70,6 +70,7 @@ is visible disagreement:
 But note that the numerical solution stays radially symmetric (the transects
 shown at 0, 20, and 45 degrees from the x-axis lie on top of one another).
 
+
 :::{dropdown} Animation of 2D solution in parabolic bowl
 :close:
 ```{figure} ./geoclaw/_plots_480/movie_fig0.mp4
@@ -176,6 +177,29 @@ And here is a plot of the final surface after 10 periods.
 
 ### Initial conditions giving a breaking wave
 
+To appear.
+
 ### Dispersive Version
 
+To appear.
+
 ## Sloshing Problem
+
+The paper https://doi.org/10.1017/S0022112081001882 also has another
+interesting problem in a parabolic bowl in which the surface remains
+planar at all times and rotationally sloshes around the bowl.
+This is a standard GeoClaw test problem
+([sample results](https://www.clawpack.org/gallery/_static/geoclaw/examples/tsunami/bowl-slosh/README.html)),
+and could perhaps also make a
+good benchmark problem, but it is not radially symmetric and so it's not
+possible to compute high-resolution reference solutions in the same way
+for modifications such as adding friction.
+
+## Code and data
+
+The code used to generate the figures and animations shown here is in
+the Github repository https://github.com/rjleveque/nthmp-benchmarks-2028,
+in the directory 
+[nthmp28/radial_bowl](https://github.com/rjleveque/nthmp-benchmarks-2028/nthmp28/radial_bowl).
+
+The topography DEM will be posted for others to use.

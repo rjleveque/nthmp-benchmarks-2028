@@ -1,0 +1,39 @@
+# See docs at: https://mystmd.org/guide/frontmatter
+version: 1
+project:
+  title: nthmp-benchmarks-2028
+  description: Work in Progress for 2028 NTHMP benchmarking workshop
+  # keywords: []
+  authors: ['Benchmarking Committee']
+  # github:
+  # To autogenerate a Table of Contents, run "jupyter book init --write-toc"
+  bibliography:
+    - docs/references.bib
+  exports:
+    - format: pdf
+      template: plain_latex_book
+      output: exports/thmp-benchmarks-2028.pdf
+      articles: index.md
+  exclude:
+    # allowlist: exclude every top-level entry except docs/.  Files
+    # elsewhere that are named explicitly in the toc below still build,
+    # e.g. index.md and bowl-radial-Thacker81/README-Thacker81.md
+    - '!(docs)'
+  toc:
+    - file: index.md
+    - title: Overview and introduction
+      children:
+        - file: docs/intro.md
+        - file: docs/geometries.md
+    - title: Radially Symmetric Problems
+      children:
+        - file: nthmp28/radial_bowl/README-radial-bowl.md
+        - file: docs/spherical_nearfield.md
+    - file: docs/biblio.md
+
+site:
+  template: book-theme
+  options:
+    hide_toc: false
+  #   favicon: favicon.ico
+  #   logo: site_logo.png
