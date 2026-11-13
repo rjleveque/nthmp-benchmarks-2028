@@ -79,7 +79,7 @@ def setrun(claw_pkg='geoclaw'):
     clawdata.upper[0] = 240.           # xupper
 
     # Number of grid cells:
-    clawdata.num_cells[0] = 240
+    clawdata.num_cells[0] = 2400
 
     # 1D geoclaw requires grid_data:
     rundata.grid_data.grid_type = 0

@@ -175,9 +175,84 @@ And here is a plot of the final surface after 10 periods.
 ```
 :::
 
+#### With realistic mesh spacing
+
+The experiments above were done with very fine grids relative to the resolution
+that is normally used in a coastal modeling problem, where the finest
+grids onshore might be 1/3 arcsecond, roughly 7-10 meters. (Recall the
+parameters were chosen so that this parabolic bowl has a realistic beach
+slope and inundation distance for a 2 meter amplitude short-wavelength wave.)
+
+If we use a 48 x 48 grid ($\Delta x = \Delta y =$ 10 meters), we get this
+plot at the final time:
+
+:::{figure} ./friction/geoclaw/_plots_48/frame0120fig9.png
+:width: 600px
+:align: center
+:::
+
+:::{dropdown} Animation of 1D transects of the 2D solution (48 x 48 grid)
+:close:
+```{figure} ./friction/geoclaw/_plots_48/movie_fig9.mp4
+:width: 600px
+:align: center
+```
+:::
+
+
 ### Initial conditions giving a breaking wave
 
-To appear.
+In this experiment the radially symmetric sharply peaked Gaussian is used
+as the initial condition:
+$$
+\hat\eta_0(r) = 10 \exp(-(r/20)^2)
+$$
+The radially expanding wave sharpens into a shock wave (hydraulic jump)
+before reaching shore.
+
+Here we also switched to solving in the positive quadrant with solid
+wall boundary conditions at $x=0$ and $y=0$.
+
+#### Fine grid ($\Delta x = \Delta y = 1$ meter)
+
+:::{figure} ./breaking/geoclaw/_plots_q240/frame0006fig9.png
+:width: 600px
+:align: center
+:::
+
+:::{figure} ./breaking/geoclaw/_plots_q240/frame0012fig9.png
+:width: 600px
+:align: center
+:::
+
+:::{dropdown} Animation of 1D transects of the 2D solution
+:close:
+```{figure} ./breaking/geoclaw/_plots_q240/movie_fig9.mp4
+:width: 600px
+:align: center
+```
+:::
+
+#### Coarse grid ($\Delta x = \Delta y = 10$ meter)
+
+:::{figure} ./breaking/geoclaw/_plots_q24/frame0006fig9.png
+:width: 600px
+:align: center
+:::
+
+:::{figure} ./breaking/geoclaw/_plots_q24/frame0012fig9.png
+:width: 600px
+:align: center
+:::
+
+:::{dropdown} Animation of 1D transects of the 2D solution
+:close:
+```{figure} ./breaking/geoclaw/_plots_q24/movie_fig9.mp4
+:width: 600px
+:align: center
+```
+:::
+
 
 ### Dispersive Version
 

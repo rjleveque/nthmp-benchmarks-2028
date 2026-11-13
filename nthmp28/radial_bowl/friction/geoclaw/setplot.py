@@ -9,6 +9,7 @@ function setplot is called to set the plot parameters.
 
 from numpy import *
 import os
+from clawpack.visclaw.legend_tools import add_legend
 
 try:
     from nthmp28.radial_bowl import true_solution as TS
@@ -18,7 +19,7 @@ except:
 
 
 if 1:
-    q1d_dir = os.path.abspath('./1d_radial/_output')
+    q1d_dir = os.path.abspath('./1d_radial/_output_2400')
     if not os.path.exists(q1d_dir):
         print(f"Directory {q1d_dir} not found")
         q1d_dir = None 
@@ -76,15 +77,15 @@ def setplot(plotdata=None):
 
     # Set up for axes in this figure:
     plotaxes = plotfigure.new_plotaxes('pcolor')
-    plotaxes.title = 'Water depth'
+    plotaxes.title = 'Water surface / depth'
     plotaxes.scaled = True
 
     # Water
     plotitem = plotaxes.new_plotitem(plot_type='2d_pcolor')
-    plotitem.plot_var = geoplot.depth  #geoplot.surface_or_depth
+    plotitem.plot_var = geoplot.surface_or_depth
     plotitem.pcolor_cmap = geoplot.tsunami_colormap
-    plotitem.pcolor_cmin = 0
-    plotitem.pcolor_cmax = 8
+    plotitem.pcolor_cmin = -1
+    plotitem.pcolor_cmax = 1
     plotitem.add_colorbar = True
     plotitem.amr_celledges_show = [0,0,0]
     plotitem.amr_patchedges_show = [0]
@@ -93,24 +94,23 @@ def setplot(plotdata=None):
     plotitem = plotaxes.new_plotitem(plot_type='2d_pcolor')
     plotitem.plot_var = geoplot.land
     plotitem.pcolor_cmap = geoplot.land_colors
-    plotitem.pcolor_cmin = -1.0
+    plotitem.pcolor_cmin = -3.0
     plotitem.pcolor_cmax = 3.0
     plotitem.add_colorbar = False
     plotitem.amr_celledges_show = [0,0,0]
     plotitem.amr_patchedges_show = [0]
 
     def plot_shore(current_data):
-        from pylab import linspace, where, cos, sin, plot, legend
+        from pylab import linspace, cos, sin, plot, legend
         t = current_data.t
-        rout = linspace(0, 2*TS.L, 1000)
-        h_true, u_true, v_true, eta_true = TS.qtrue(rout, zeros(rout.shape), t)
-        jshore = where(h_true > 0)[0].max()
-        rshore = rout[jshore]
+
+        rshore = TS.shoreline(t)
         print(f'rshore = {rshore:.3f}')
+
         theta = linspace(0, 2*pi, 1000)
         xshore = rshore * cos(theta)
         yshore = rshore * sin(theta)
-        plot(xshore, yshore, 'yellow', linewidth=1.6, label='true shoreline')
+        plot(xshore, yshore, 'yellow', linewidth=1.6, label='frictionless shoreline')
         legend(loc='upper left', fontsize=9, labelcolor='yellow',
                 facecolor='g')
 
@@ -148,15 +148,20 @@ def setplot(plotdata=None):
         method = 'linear'
         rout = linspace(0, 2*TS.L, 1000)
 
+        legend_info = []
+
         t = current_data.t
-        h_true, u_true, v_true, eta_true = qtrue(rout, zeros(rout.shape), t)
-        plot(rout, eta_true, 'k--', label='analytic solution (no friction)')
+
+        h_true, u_true, v_true, eta_true = TS.qtrue(rout, zeros(rout.shape), t)
+        plot(rout, eta_true, 'k--')
         plot(-rout, eta_true, 'k--')
+        legend_info.append(('analytic (frictionless)', 'k', '--'))
+
         B_true = TS.Bfcn(rout, zeros(rout.shape))
-        plot(rout, B_true,'g',label='topography')
+        plot(rout, B_true,'g')
         plot(-rout, B_true,'g')
-        #c = ['b','c','r','m']
-        #for k,alpha in enumerate([0,10,30,45]):
+        legend_info.append(('topography', 'g', '-'))
+
         c = ['b','c','m']
         for k,alpha in enumerate([0,20,45]):
             xout = rout * cos(alpha*pi/180)
@@ -167,17 +172,25 @@ def setplot(plotdata=None):
                                                method=method)
             B_out = eta_out - h_out
             eta_out = where(h_out > 1e-3, eta_out, nan)
-            #plot(rout, B_out, 'g')
-            plot(rout, eta_out, color=c[k], label=f'for alpha={alpha:.1f} degrees')
+            plot(rout, eta_out, color=c[k])
             plot(-rout, eta_out, color=c[k])
+            legend_info.append((f'for alpha={alpha:.1f} degrees', c[k], '-'))
 
-        legend(loc='upper left', framealpha=1, fontsize=9)
-        #xticks(rotation=20)
         xlabel('x (meters)')
         ylabel('elevation (meters)')
         xlim(-240,240)
         ylim(-2.5,2.5)
         grid(True)
+
+        if q1d_dir is not None:
+            legend_info.append(('1D radial (high res)', 'r', '--'))
+
+        add_legend(labels=[li[0] for li in legend_info],
+                   colors=[li[1] for li in legend_info],
+                   linestyles=[li[2] for li in legend_info],
+                   loc='upper left', framealpha=1, fontsize=9)
+
+
 
     if q1d_dir is not None:
         # 1d radial solution:
@@ -200,63 +213,14 @@ def setplot(plotdata=None):
 
 
     plotaxes.afteraxes = plot_xsec
-    plotaxes.title = 'Manning 0.025 (red dashed line: 1D solution)\n' \
+    plotaxes.title = 'With friction, Manning coefficient 0.025\n' \
                      + 'radial transects at angles alpha to x-axis,'
 
 
     #-----------------------------------------
-    # Figure for scatter plots
-    #-----------------------------------------
-    plotfigure = plotdata.new_plotfigure(name='scatter', figno=10)
-    plotfigure.show = False
-
-    # needs fixing
-
-    # Set up for axes in this figure:
-    plotaxes = plotfigure.new_plotaxes()
-    plotaxes.xlimits = [-2,2]
-    plotaxes.ylimits = [-0.15,0.3]
-    plotaxes.title = 'Cross section at y=0'
-    def plot_topo_xsec(current_data):
-        from pylab import plot, cos,sin,where,legend,nan
-        t = current_data.t
-
-        x = linspace(-2,2,201)
-        y = 0.
-        B = h0*(x**2 + y**2)/a**2 - h0
-        eta1 = sigma*h0/a**2 * (2.*x*cos(TS.omega*t) \
-               + 2.*y*sin(TS.omega*t) -sigma)
-        etatrue = where(eta1>B, eta1, nan)
-        plot(x, etatrue, 'r', label="true solution", linewidth=2)
-        plot(x, B, 'g', label="bathymetry")
-        ## plot([0],[-1],'kx',label="Level 1")  # shouldn't show up in plots,
-        ## plot([0],[-1],'bo',label="Level 2")  # but will produced desired legend
-        plot([0],[-1],'bo',label="Computed")  ## need to fix plotstyle
-        legend()
-    plotaxes.afteraxes = plot_topo_xsec
-
-    plotitem = plotaxes.new_plotitem(plot_type='1d_from_2d_data')
-
-    def xsec(current_data):
-        # Return x value and surface eta at this point, along y=0
-        from pylab import where,ravel
-        x = current_data.x
-        y = ravel(current_data.y)
-        dy = current_data.dy
-        q = current_data.q
-
-        ij = where((y <= dy/2.) & (y > -dy/2.))
-        x_slice = ravel(x)[ij]
-        eta_slice = ravel(q[3,:,:])[ij]
-        return x_slice, eta_slice
-
-    plotitem.map_2d_to_1d = xsec
-    plotitem.plotstyle = 'kx'     ## need to be able to set amr_plotstyle
-    plotitem.kwargs = {'markersize':3}
-    plotitem.amr_show = [1]  # plot on all levels
-
     # Figures for gauges
     #-----------------------------------------
+
     plotfigure = plotdata.new_plotfigure(name='Surface & topo', figno=300, \
                     type='each_gauge')
 

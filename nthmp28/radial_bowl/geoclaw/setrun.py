@@ -8,8 +8,12 @@ that will be read in by the Fortran code.
 
 import os
 import numpy as np
+try:
+    from nthmp28.radial_bowl import true_solution as TS
+except:
+    print('*** The git repository directory needs to be on your Python path')
+    raise
 
-from true_solution import D0, L, eta0, Tperiod
 
 #------------------------------
 def setrun(claw_pkg='geoclaw'):
@@ -37,9 +41,9 @@ def setrun(claw_pkg='geoclaw'):
     # Problem-specific parameters to be written to setprob.data:
     #------------------------------------------------------------------
     probdata = rundata.new_UserData(name='probdata',fname='setprob.data')
-    probdata.add_param('D0', D0, 'topo depth at center of bowl')
-    probdata.add_param('L', L, 'radius of topo=0 contour')
-    probdata.add_param('eta0', eta0, 'initial eta at center')
+    probdata.add_param('D0', TS.D0, 'topo depth at center of bowl')
+    probdata.add_param('L', TS.L, 'radius of topo=0 contour')
+    probdata.add_param('eta0', TS.eta0, 'initial eta at center')
 
     #------------------------------------------------------------------
     # GeoClaw specific parameters:
@@ -74,8 +78,8 @@ def setrun(claw_pkg='geoclaw'):
 
 
     # Number of grid cells: Coarsest grid
-    clawdata.num_cells[0] = 480
-    clawdata.num_cells[1] = 480
+    clawdata.num_cells[0] = 48
+    clawdata.num_cells[1] = 48
 
 
     # ---------------
@@ -121,7 +125,7 @@ def setrun(claw_pkg='geoclaw'):
     if clawdata.output_style == 1:
         # Output nout frames at equally spaced times up to tfinal:
         clawdata.num_output_times = 120
-        clawdata.tfinal = 10*Tperiod
+        clawdata.tfinal = 10*TS.Tperiod
         clawdata.output_t0 = True  # output at initial (or restart) time?
 
     elif clawdata.output_style == 2:
